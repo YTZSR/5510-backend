@@ -94,7 +94,7 @@ def drop():
     cur.execute(
         '''DROP TABLE companies'''
     )
-    cur.execute()
+
     cur.close()
     conn.close()
 
