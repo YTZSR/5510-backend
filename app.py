@@ -75,6 +75,7 @@ def init_remote():
     cur.close()
     return 'Success', 200
 
+
 @app.route('/drop', methods=["GET"])
 def drop():
     # conn = sqlite3.connect('database.db')
@@ -93,7 +94,6 @@ def drop():
     cur.execute(
         '''DROP TABLE companies'''
     )
-    cur.commit()
     cur.close()
 
     return 'Success', 200
