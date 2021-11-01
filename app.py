@@ -8,18 +8,10 @@ currentdirectory = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__)
 
-# # DB Connection
-# def connect_db():
-#     return sqlite3.connect(DATABASE)
-#
-# @app.before_request
-# def before_request():
-#     g.db = connect_db()
-#
-# @app.teardown_request
-# def teardown_request(exception):
-#     if hasattr(g, 'db'):
-#         g.db.close()
+DB_HOST = 'ec2-44-198-154-255.compute-1.amazonaws.com'
+DB_DATABASE = "d24cip913rl0bs"
+DB_USER = 'ceotxzmvpuhqmt'
+DB_PASSWORD = '3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0'
 
 
 # API
@@ -27,35 +19,35 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello World!'
 
-@app.route('/init', methods=["POST"])
-def init():
-    conn = sqlite3.connect('database.db')
-
-    conn.execute(
-        '''CREATE TABLE companies (
-            name TEXT, 
-            industry TEXT,
-            roa double, 
-            moneyfund double, 
-            totalretainedearningsratio double,
-            fixedassets double,
-            financialexpenses double,
-            employeecompensationpayable double,
-            quickratio double
-             )'''
-    )
-    conn.commit()
-    conn.close()
-    return 'Success', 200
+# @app.route('/init', methods=["POST"])
+# def init():
+#     conn = sqlite3.connect('database.db')
+#
+#     conn.execute(
+#         '''CREATE TABLE companies (
+#             name TEXT,
+#             industry TEXT,
+#             roa double,
+#             moneyfund double,
+#             totalretainedearningsratio double,
+#             fixedassets double,
+#             financialexpenses double,
+#             employeecompensationpayable double,
+#             quickratio double
+#              )'''
+#     )
+#     conn.commit()
+#     conn.close()
+#     return 'Success', 200
 
 
 @app.route('/init_remote', methods=["POST"])
 def init_remote():
     conn = psycopg2.connect(
-        host="ec2-44-198-154-255.compute-1.amazonaws.com",
-        database="d24cip913rl0bs",
-        user="ceotxzmvpuhqmt",
-        password="3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0")
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
     cur = conn.cursor()
 
     cur.execute(
@@ -78,18 +70,11 @@ def init_remote():
 
 @app.route('/drop', methods=["GET"])
 def drop():
-    # conn = sqlite3.connect('database.db')
-    # conn.execute(
-    #     '''DROP TABLE companies'''
-    # )
-    # conn.commit()
-    # conn.close()
-
     conn = psycopg2.connect(
-        host="ec2-44-198-154-255.compute-1.amazonaws.com",
-        database="d24cip913rl0bs",
-        user="ceotxzmvpuhqmt",
-        password="3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0")
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
     cur = conn.cursor()
     cur.execute(
         '''DROP TABLE companies'''
@@ -102,9 +87,14 @@ def drop():
 
 @app.route('/set_company', methods=["POST"])
 def set_company():
-    conn = sqlite3.connect('database.db')
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
+    cur = conn.cursor()
 
-    conn.execute(
+    cur.execute(
         '''INSERT INTO companies VALUES(
             '{}','{}','{}','{}','{}','{}','{}','{}','{}'
              )'''.format(request.form['name'], request.form['industry'], request.form['roa'],
@@ -112,6 +102,7 @@ def set_company():
                          request.form['financialexpenses'], request.form['employeecompensationpayable'], request.form['quickratio'])
     )
     conn.commit()
+    cur.close()
     conn.close()
     return 'Success', 200
 
