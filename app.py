@@ -16,7 +16,7 @@ DB_DATABASE = "d24cip913rl0bs"
 DB_USER = 'ceotxzmvpuhqmt'
 DB_PASSWORD = '3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0'
 
-path = sys.path[0]
+# path = sys.path[0]
 
 
 # API
@@ -24,7 +24,7 @@ path = sys.path[0]
 def hello_world():
     # read in data
     print(sys.path)
-    final_all = pd.read_csv(sys.path[0] + "/final_all.csv")
+    final_all = pd.read_csv("final_all.csv")
     col = final_all.columns
     print(col)
 
@@ -120,7 +120,7 @@ def set_company():
 if __name__ == '__main__':
     # Train model
     # path = sys.path[0]
-    print(path)
+    path = '/app'
     final_all = pd.read_csv(path + "/final_all.csv")
     X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
 
