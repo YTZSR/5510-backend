@@ -88,6 +88,7 @@ def LR_model_train_save(path, X_smo, y_smo, X_test, y_test):
     # save
     with open(path + "LR_model.pkl", 'wb') as file:
         pickle.dump(lr, file)
+
     return y_pred_lr, y_prob_lr
 
 

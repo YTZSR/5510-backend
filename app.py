@@ -16,6 +16,8 @@ DB_DATABASE = "d24cip913rl0bs"
 DB_USER = 'ceotxzmvpuhqmt'
 DB_PASSWORD = '3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0'
 
+path = sys.path[0]
+
 
 # API
 @app.route('/')
@@ -117,7 +119,8 @@ def set_company():
 
 if __name__ == '__main__':
     # Train model
-    path = sys.path[0]
+    # path = sys.path[0]
+    print(path)
     final_all = pd.read_csv(path + "/final_all.csv")
     X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
 
@@ -127,6 +130,4 @@ if __name__ == '__main__':
     y_pred_lgb, y_pred_dummy_lgb, imp_lgb = LightGBM_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
     pred_catboost2, pred_prob_catboost2, report = Stacking_model_train_valid_save(path, X_smo, y_smo, X_test, y_test,
                                                                                   col_lst)
-
-
     app.run()
