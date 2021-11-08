@@ -24,6 +24,7 @@ DB_PASSWORD = '3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0'
 def hello_world():
     # read in data
     print(sys.path)
+    path = ''
     final_all = pd.read_csv("final_all.csv")
     col = final_all.columns
     print(col)
