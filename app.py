@@ -27,6 +27,14 @@ def hello_world():
     final_all = pd.read_csv("final_all.csv")
     col = final_all.columns
     print(col)
+    X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
+
+    y_pred_lr, y_prob_lr = LR_model_train_save(path, X_smo, y_smo, X_test, y_test)
+    res_prob, res_xgb, importance_xgb_lst = XGB_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
+    pred_catboost, pred_cat_prob, imp_cat = Catboost_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
+    y_pred_lgb, y_pred_dummy_lgb, imp_lgb = LightGBM_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
+    pred_catboost2, pred_prob_catboost2, report = Stacking_model_train_valid_save(path, X_smo, y_smo, X_test, y_test,
+                                                                                  col_lst)
 
     return 'Hello World!'
 
