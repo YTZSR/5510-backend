@@ -120,8 +120,8 @@ def set_company():
 if __name__ == '__main__':
     # Train model
     # path = sys.path[0]
-    path = '/app'
-    final_all = pd.read_csv(path + "/final_all.csv")
+    path = ''
+    final_all = pd.read_csv(path + "final_all.csv")
     X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
 
     y_pred_lr, y_prob_lr = LR_model_train_save(path, X_smo, y_smo, X_test, y_test)
