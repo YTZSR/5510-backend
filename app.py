@@ -3,8 +3,8 @@ import sqlite3
 import os
 import psycopg2
 import pandas as pd
-import sys
-from model import feature_engineering_train_test_split, LR_model_train_save, XGB_classifier_train_save, Catboost_classifier_train_save, LightGBM_classifier_train_save, Stacking_model_train_valid_save
+import json
+
 
 DATABASE = 'database.db'
 currentdirectory = os.path.dirname(os.path.abspath(__file__))
@@ -23,19 +23,6 @@ DB_PASSWORD = '3df8cf97cf7ad812fcef7c1a0f8ca6ed2c30ba2c8ec71d31636fa3ec1b3b9bb0'
 @app.route('/')
 def hello_world():
     # read in data
-    print(sys.path)
-    path = ''
-    final_all = pd.read_csv("final_all.csv")
-    col = final_all.columns
-    print(col)
-    X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
-
-    y_pred_lr, y_prob_lr = LR_model_train_save(path, X_smo, y_smo, X_test, y_test)
-    res_prob, res_xgb, importance_xgb_lst = XGB_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    pred_catboost, pred_cat_prob, imp_cat = Catboost_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    y_pred_lgb, y_pred_dummy_lgb, imp_lgb = LightGBM_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    pred_catboost2, pred_prob_catboost2, report = Stacking_model_train_valid_save(path, X_smo, y_smo, X_test, y_test,
-                                                                                  col_lst)
 
     return 'Hello World!'
 
@@ -70,17 +57,27 @@ def init_remote():
         password=DB_PASSWORD)
     cur = conn.cursor()
 
+    # cur.execute(
+    #     '''CREATE TABLE companies (
+    #         name TEXT,
+    #         industry TEXT,
+    #         roa float,
+    #         moneyfund float,
+    #         totalretainedearningsratio float,
+    #         fixedassets float,
+    #         financialexpenses float,
+    #         employeecompensationpayable float,
+    #         quickratio float
+    #          )'''
+    # )
+    # conn.commit()
     cur.execute(
-        '''CREATE TABLE companies (
-            name TEXT, 
-            industry TEXT,
-            roa float, 
-            moneyfund float, 
-            totalretainedearningsratio float,
-            fixedassets float,
-            financialexpenses float,
-            employeecompensationpayable float,
-            quickratio float
+        '''CREATE TABLE users (
+            name TEXT PRIMARY KEY, 
+            email TEXT,
+            password TEXT,
+            bank TEXT,
+            field TEXT
              )'''
     )
     conn.commit()
@@ -115,28 +112,85 @@ def set_company():
     cur = conn.cursor()
 
     cur.execute(
-        '''INSERT INTO companies VALUES(
+        '''INSERT INTO users VALUES(
             '{}','{}','{}','{}','{}','{}','{}','{}','{}'
              )'''.format(request.form['name'], request.form['industry'], request.form['roa'],
-                         request.form['moneyfund'], request.form['totalretainedearningsratio'], request.form['fixedassets'],
-                         request.form['financialexpenses'], request.form['employeecompensationpayable'], request.form['quickratio'])
+                         request.form['moneyfund'], request.form['totalretainedearningsratio'],
+                         request.form['fixedassets'],
+                         request.form['financialexpenses'], request.form['employeecompensationpayable'],
+                         request.form['quickratio'])
     )
     conn.commit()
     cur.close()
     conn.close()
     return 'Success', 200
 
-if __name__ == '__main__':
-    # Train model
-    # path = sys.path[0]
-    path = ''
-    final_all = pd.read_csv(path + "final_all.csv")
-    X_smo, X_test, y_smo, y_test, col_lst = feature_engineering_train_test_split(final_all)
 
-    y_pred_lr, y_prob_lr = LR_model_train_save(path, X_smo, y_smo, X_test, y_test)
-    # res_prob, res_xgb, importance_xgb_lst = XGB_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    # pred_catboost, pred_cat_prob, imp_cat = Catboost_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    # y_pred_lgb, y_pred_dummy_lgb, imp_lgb = LightGBM_classifier_train_save(path, X_smo, y_smo, X_test, y_test, col_lst)
-    # pred_catboost2, pred_prob_catboost2, report = Stacking_model_train_valid_save(path, X_smo, y_smo, X_test, y_test,
-    #                                                                               col_lst)
+@app.route('/user', methods=["POST"])
+def set_user():
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
+    cur = conn.cursor()
+
+    cur.execute(
+        '''INSERT INTO users VALUES(
+            '{}','{}','{}','{}','{}'
+             )'''.format(request.form['name'], request.form['email'], request.form['password'],
+                         request.form['bank'], request.form['field'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return 'Success', 200
+
+@app.route('/user', methods=["GET"])
+def get_user():
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * FROM users WHERE name='{}'".format(request.args.get('name'))
+    )
+    record = cur.fetchall()[0]
+    record = {
+        'name': record[0],
+        'email': record[1],
+        'password': record[2],
+        'bank': record[3],
+        'field': record[4]
+    }
+    response = json.dumps(record)
+
+    cur.close()
+    conn.close()
+    return response, 200
+
+@app.route('/user', methods=["PUT"])
+def edit_user():
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
+    cur = conn.cursor()
+
+    cur.execute(
+        "UPDATE users SET email='{}', password='{}', bank='{}', field='{}' WHERE name='{}'"
+        .format(request.form['email'], request.form['password'],
+                request.form['bank'], request.form['field'], request.form['name'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return 'Success', 200
+
+
+if __name__ == '__main__':
     app.run()
