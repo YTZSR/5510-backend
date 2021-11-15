@@ -191,6 +191,32 @@ def edit_user():
     conn.close()
     return 'Success', 200
 
+@app.route('/company', methods=["GET"])
+def get_company():
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_DATABASE,
+        user=DB_USER,
+        password=DB_PASSWORD)
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * FROM f_all WHERE id='{}'".format(request.args.get('id'))
+    )
+    record = cur.fetchall()[0]
+    list = "id,ITM_1010,ITM_1020,ITM_1030,ITM_1040,ITM_1050,ITM_1060,ITM_1070,ITM_1080,ITM_1090,ITM_1100,ITM_1110,ITM_1120,ITM_1130,ITM_1140,ITM_1150,ITM_1160,ITM_1170,ITM_1180,ITM_1190,ITM_1200,ITM_1210,ITM_1230,ITM_1240,ITM_1250,ITM_1270,ITM_1280,ITM_1290,ITM_1300,ITM_1310,ITM_1320,ITM_1330,ITM_1340,ITM_1350,ITM_1360,ITM_1370,ITM_1380,ITM_1400,ITM_1401,ITM_1410,ITM_1420,ITM_1430,ITM_1450,ITM_1460,ITM_1480,ITM_1490,ITM_1500,ITM_1510,ITM_1520,ITM_1530,ITM_1540,ITM_1550,ITM_1560,ITM_1570,ITM_1580,ITM_1590,ITM_1600,ITM_1610,ITM_1620,ITM_1680,ITM_1710,ITM_1720,ITM_1730,ITM_1740,ITM_1750,ITM_1760,ITM_1780,ITM_1790,ITM_1820,ITM_1840,ITM_1850,ITM_1860,ITM_1870,ITM_1880,ITM_1890,ITM_1900,ITM_1920,ITM_1220,ITM_1260,ITM_1390,ITM_1440,ITM_1470,ITM_1640,ITM_1650,ITM_1660,ITM_1670,ITM_1690,ITM_1700,ITM_3010,ITM_3030,ITM_3040,ITM_3050,ITM_3060,ITM_3070,ITM_3080,ITM_3090,ITM_3100,ITM_3110,ITM_3130,ITM_3140,ITM_3150,ITM_3170,ITM_3180,ITM_3190,ITM_3200,ITM_3220,ITM_3230,ITM_3240,ITM_3260,ITM_3270,ITM_3280,ITM_3290,ITM_3300,ITM_3310,ITM_3320,ITM_3330,ITM_3340,ITM_3350,ITM_3360,ITM_3020,ITM_3160,ITM_3210,ITM_3370,ITM_3380,ITM_2050,ITM_2070,ITM_2140,ITM_2170,ITM_2172,ITM_2173,ITM_2010,ITM_2020,ITM_2030,ITM_2040,ITM_2060,ITM_2080,ITM_2090,ITM_2100,ITM_2110,ITM_2120,ITM_2130,ITM_2150,ITM_2160,ITM_2180,ITM_2190,ITM_2200,ITM_2210,ITM_2220,ITM_2250,ITM_2260,ITM_2270,ITM_2280,ITM_2290,ITM_2300,ITM_2320,ITM_2330,y,to_pay_exp,inventory_vs_expense,sales_profit,gross_profit,roa,profit_net_asset,liab_ratio,liab_equity,tangible_asset_liab,secure_liab,liquidity,subsidiary,industry_code,industry_name,size,enterprise_ownership,field".split(',')
+
+    res = {}
+    i = 0
+    for item in list:
+        res[item] = record[i]
+        i += 1
+
+    response = json.dumps(res)
+
+    cur.close()
+    conn.close()
+    return response, 200
 
 if __name__ == '__main__':
     app.run()
