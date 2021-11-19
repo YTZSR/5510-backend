@@ -158,19 +158,24 @@ def get_user():
     cur.execute(
         "SELECT * FROM users WHERE name='{}'".format(request.args.get('name'))
     )
-    record = cur.fetchall()[0]
-    record = {
-        'name': record[0],
-        'email': record[1],
-        'password': record[2],
-        'bank': record[3],
-        'field': record[4]
-    }
-    response = json.dumps(record)
 
-    cur.close()
-    conn.close()
-    return response, 200
+    try:
+        record = cur.fetchall()[0]
+        record = {
+            'name': record[0],
+            'email': record[1],
+            'password': record[2],
+            'bank': record[3],
+            'field': record[4]
+        }
+        response = json.dumps(record)
+
+        cur.close()
+        conn.close()
+        return response, 200
+    except:
+        return 'no such user', 404
+
 
 @app.route('/user', methods=["PUT"])
 def edit_user():
